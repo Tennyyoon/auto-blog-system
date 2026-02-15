@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>개인용 키워드 트래커</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <h1>개인용 키워드 트래커</h1>
+    <p>Google / Naver / Daum의 키워드 관심도(점수)와 검색 결과량(발행량)을 한 번에 확인합니다.</p>
+
+    <form id="search-form">
+      <input id="keyword" type="text" placeholder="예: 뉴질랜드 워홀" required />
+      <button type="submit">분석하기</button>
+    </form>
+
+    <section id="status"></section>
+
+    <table id="result-table" hidden>
+      <thead>
+        <tr>
+          <th>플랫폼</th>
+          <th>관심도 점수 (0~100)</th>
+          <th>검색 결과량(발행량 추정)</th>
+          <th>원본 메모</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p class="notice">※ 점수는 공식 API 또는 자동완성 기반의 간이 지표이며, 실제 광고도구 검색량과 다를 수 있습니다.</p>
+  </main>
+
+  <script>
+    const form = document.getElementById('search-form');
+    const keywordInput = document.getElementById('keyword');
+    const statusBox = document.getElementById('status');
+    const table = document.getElementById('result-table');
+    const tbody = table.querySelector('tbody');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const keyword = keywordInput.value.trim();
+      if (!keyword) return;
+
+      statusBox.textContent = '조회 중입니다...';
+      table.hidden = true;
+      tbody.innerHTML = '';
+
+      try {
+        const response = await fetch(`/api/analyze?keyword=${encodeURIComponent(keyword)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || '요청 실패');
+        }
+
+        for (const item of data.results) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.platform}</td>
+            <td>${item.trend_score ?? '-'}</td>
+            <td>${item.indexed_posts ?? '-'}</td>
+            <td>${item.raw_note}</td>
+          `;
+          tbody.appendChild(row);
+        }
+
+        table.hidden = false;
+        statusBox.textContent = `키워드 '${data.keyword}' 분석 완료`;
+      } catch (error) {
+        statusBox.textContent = `오류: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
