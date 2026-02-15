@@ -105,6 +105,9 @@ for i in range(start_index, min(end_index, len(topics))):
 
     topic = topics[i]
     content = generate_post(topic)
+print("\n===== 생성된 글 =====\n")
+print(content)
+print("\n===== 끝 =====\n")
 
     document = Document()
 
