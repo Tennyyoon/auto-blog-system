@@ -1,3 +1,4 @@
+import os
 import re
 from dataclasses import dataclass, asdict
 from typing import Optional
@@ -188,6 +189,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
+
 @app.route("/api/analyze")
 def api_analyze():
     keyword = request.args.get("keyword", "").strip()
@@ -208,4 +214,5 @@ def api_analyze():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    port = int(os.getenv("PORT", "8080"))
+    app.run(host="0.0.0.0", port=port, debug=False)
