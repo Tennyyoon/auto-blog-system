@@ -102,21 +102,19 @@ def generate_post(topic):
 today = datetime.now().strftime("%Y-%m-%d")
 
 for i in range(start_index, min(end_index, len(topics))):
-
     topic = topics[i]
     content = generate_post(topic)
-print("\n===== 생성된 글 =====\n")
-print(content)
-print("\n===== 끝 =====\n")
+
+    print("\n===== 생성된 글 =====\n")
+    print(content)
+    print("\n===== 끝 =====\n")
 
     document = Document()
-
     for line in content.split("\n"):
         document.add_paragraph(line)
 
     safe_title = topic.replace(" ", "_")
     file_name = f"{today}_{i+1}_{safe_title}.docx"
-
     document.save(file_name)
 
     print(f"생성 완료: {file_name}")
